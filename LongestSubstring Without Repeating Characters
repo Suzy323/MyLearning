@@ -1,0 +1,42 @@
+import java.util.HashSet;
+
+public class Solution {
+    public static int lengthOfLongestSubstring(String s) {
+    if(s==null || s.length()==0)
+        return 0;
+    
+    HashSet<Character> set = new HashSet<Character>();//定义一个集合
+    int max = 0;
+    int walker = 0;
+    int runner = 0;
+    while(runner<s.length()){
+        if(set.contains(s.charAt(runner))){ //如果set集合里有这个字符，charAt（）字符的索引
+            if(max<runner-walker)
+                max = runner-walker;
+            
+            while(s.charAt(walker)!=s.charAt(runner)){
+                //set.remove(s.charAt(walker));//不一定成功，布尔型。
+                walker++;
+            }
+            walker++;
+        }else
+            set.add(s.charAt(runner));
+            
+        runner++;
+    }
+    //max = Math.max(max,runner-walker);
+        max=set.size();
+        System.out.print(set);
+    return max;
+   
+}
+    
+    public static void main(String[] args) {
+    	String s = new String("abcdkkkk");
+    	//Solution t = new Solution;
+    	int c=lengthOfLongestSubstring(s);
+    	System.out.print(c);
+    	
+    
+    }
+}
