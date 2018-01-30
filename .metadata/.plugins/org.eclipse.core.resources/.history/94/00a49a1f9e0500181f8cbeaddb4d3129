@@ -1,0 +1,48 @@
+import java.util.Vector;
+
+
+public class Main {
+	public static void main(String[] args) {
+		final double[][] weigh = { 
+				{ -1, 0, -1, -1, -1, -1, -1 },
+				{ -1, -1, 0, -1, 5, -1, -1 },
+				{ -1, -1 , -1, 0, -1, 1, -1 },
+				{ -1, -1, -1, -1, -1, -1, 0 },
+				{ -1, -1, 4, -1, -1, 3, -1 },
+				{ -1, -1, -1, 0, -1, -1, -1 },
+				{ -1, -1, -1, -1, -1, -1, -1 } };
+		final double [][] bw = { 
+				{ 1, 2, 3, 4, 5, 6, 7},
+				{ 1, 2, 3, 4, 5, 6, 7},
+				{ 1, 2, 3, 4, 5, 6, 7},
+				{ 1, 2, 3, 4, 5, 6, 7},
+				{ 1, 2, 3, 4, 5, 6, 7},
+				{ 1, 2, 3, 4, 5, 6, 7},
+				{ 1, 2, 3, 4, 5, 6, 7},};
+		final double[][] arriveRate  = { 
+				{0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1 },
+				{0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1 },
+				{0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1 },
+				{0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1 },
+				{0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1 },
+				{0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1 },
+				{0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1 }, };
+		final double[][] delay = { 
+				{1, 1, 1, 1, 1, 1, 1},
+				{1, 1, 1, 1, 1, 1, 1},
+				{1, 1, 1, 1, 1, 1, 1},
+				{1, 1, 1, 1, 1, 1, 1},
+				{1, 1, 1, 1, 1, 1, 1},
+				{1, 1, 1, 1, 1, 1, 1},
+				{1, 1, 1, 1, 1, 1, 1}, };
+		Graph G = new Graph();
+		G.array = G.GraphInitial(weigh);
+		G.start = 0;
+		G.end = 6;
+		int a = G.MSAforKSP(5, G.kpaths, G.start, G.end);
+		System.out.println("kpaths = "+ G.kpaths);
+		Vector<Vector> constraint = G.SelectPath(bw, arriveRate, delay);
+		System.out.println("constraint = "+ constraint);
+		System.out.println("array_path = "+ G.array_path);
+	}
+}

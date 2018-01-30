@@ -1,56 +1,14 @@
 import java.util.*;
 
-
 public class Graph {
 	private int g_N,g_size;
 	public Vector<Vector<Double>> array=new Vector<Vector<Double>>();
-	public Stack<Integer> path = new Stack<Integer>();
-	//public Vector<Stack> paths = new Vector<Stack>();
-	//public Vector v = new Vector(3, 2);
-	private int start;
-	private int end;
+	public Vector<Vector<Double>> constraint = new Vector<Vector<Double>>();
+	public Vector<Vector> array_path=new Vector<Vector>();
+	public Vector<Stack> kpaths = new Vector<Stack>();
+	public int start;
+	public int end;
 	public static final double POSITIVE_INFINITY = 1.0 / 0.0;
-	
-	public static void main(String[] args) {
-		Graph G = new Graph();
-		Vector<Stack> kpaths = new Vector<Stack>();
-		final double[][] dag = { 
-				{ -1,  0, -1, -1, -1, -1, -1 },
-				{ -1, -1,  0, -1,  5, -1, -1 },
-				{ -1, -1, -1,  0, -1,  1, -1 },
-				{ -1, -1, -1, -1, -1, -1,  0 },
-				{ -1, -1,  4, -1, -1,  3, -1 },
-				{ -1, -1, -1,  0, -1, -1, -1 },
-				{ -1, -1, -1, -1, -1, -1, -1 } };
-		int N = dag.length;			
-		G.array=G.GraphInitial(dag);
-		G.start=0;
-		G.end=6;
-		double min = G.Dijkstra(G.path,G.start,G.end);
-		System.out.println("min = "+min);
-
-		int a=G.MSAforKSP(5,kpaths,0,6);
-//		System.out.println("MSAforKSP = "+a );
-		System.out.println("first "+kpaths);
-//		for (int i=0;i<kpaths.size();i++)
-//		{
-//			if(kpaths.get(i).size()>0)
-//			{
-//				System.out.println(" "+kpaths.get(i));
-//			}
-//			System.out.println("one");
-//		}
-		
-//		for(int i=0;i<G.array.size();i++){
-//		  Vector vec=G.array.elementAt(i);
-//		  for(int j=0;j<vec.size();j++){
-//		     Object element=vec.elementAt(j);
-//		     System.out.print(element+" ");
-//		  }
-//		  System.out.println(" ");
-//		}
-		
-	}
 	
 	public Vector<Vector<Double>> GraphInitial (double[][] a){
 		Vector<Vector<Double>> array=new Vector<Vector<Double>>() ;
@@ -64,10 +22,6 @@ public class Graph {
 		g_N=a.length;
 		g_size=a.length;
 		return array;
-	}
-	
-	public void Restart(){
-		
 	}
 	
 	public double Dijkstra(Stack<Integer> path, int start, int end){
@@ -154,10 +108,6 @@ public class Graph {
 		return mdist == POSITIVE_INFINITY ? -1 : mdist;
 	}
 	
-	public void Output(){
-		
-	}
-	
 	@SuppressWarnings("rawtypes")
 	int MSAforKSP(int k,Vector<Stack> kpaths,int start,int end)
 	{
@@ -168,9 +118,11 @@ public class Graph {
 		Vector<Integer> Base =new Vector<Integer>();
 		Vector<Integer> Prime = new Vector<Integer>();
 		Vector<Double> Dist =new Vector<Double>(); 
+
 		/* Find the shortest path firstly */	
 		if( dijkstra(Path_tempt,Dist_tempt, start, end) < 0 ) return 0;
 		Stack<Integer> path = new Stack<Integer>();      //可记录一条路径
+		Stack<Integer> path2 = new Stack<Integer>();
 		for(int i=0;i<g_size;i++)
 		{ 
 			Prime.addElement(-1); 
@@ -178,19 +130,24 @@ public class Graph {
 			Path.addElement(Path_tempt[i]);
 			Dist.addElement(Dist_tempt[i]);
 		} 
-		int j = g_size - 1;	
+		int j = end;	
 		while(j>=0)
 		{		
-			path.push(j); j=Path_tempt[j];	//push -- stack 
+			path.push(j); path2.push(j);j=Path_tempt[j];	//push -- stack 
 		}
-		kpaths.addElement(path); // store the shortest path  push_back vector
-		System.out.println("kpaths="+kpaths);
+//		System.out.println("Dist = "+Dist);
+//		System.out.println("Path = "+Path);
+//		System.out.println("path = "+path);
+//		System.out.println("Prime = "+Prime);
+//		System.out.println("Base = "+Base);
+
+		kpaths.addElement(path2); // store the shortest path  push_back vector
 		
 		/* Find the 2th - kth shortest paths */
 		int ki = 1;
 		while( ki < k )
 		{
-			System.out.println("---------roll = "+ki);
+			System.out.println("---------------roll = "+ki);
 			/* Find the first node with more than a single incoming arc */
 			int nh = 0;
 			while( path.size()>0 )  //path 向量不为空时，循环前记录的是第ki条最短路径1389
@@ -204,25 +161,16 @@ public class Graph {
 					if( count > 1 ) 
 					{
 						break;
-					}
-						
+					}	
 				}
-				
-				if( count > 1 ) 
-				{ 
-					nh = node;
-					break; 
-				} //nh：可扩展节点
+				if( count > 1 ) { nh = node;break; } //nh：可扩展节点
 			}
 
-			if( nh==0 )
-			{
-				break; // there is NOT an alternative path, exit!
-			}
+			if( nh==0 ){break; }// there is NOT an alternative path, exit!
 
 			int ni = 0;
 			/* Add the first prime node to graph */
-			if( Prime.get(nh) < 0 ) //nh没有入节点，Prime初始化都为-1
+			if( Prime.get(nh) < 0 ) 
 			{
 				int nh1 = AddNode(nh,Path.get(nh)); //nh1=size++  of _array,估计是扩展节点，列编号
 				
@@ -230,16 +178,14 @@ public class Graph {
 				double min_dist = POSITIVE_INFINITY;
 				int min_node = -1;
 				for(int i=0;i<g_size-1;i++)
-				{
-					
+				{	
 					double tmp = (array.get(i).get(nh1)< 0.0) ? POSITIVE_INFINITY : array.get(i).get(nh1);
 					if( Dist.get(i) + tmp < min_dist )
 					{
 						min_dist = Dist.get(i) + tmp;
 						min_node = i;
 					}
-				}
-				
+				}	
 				Dist.addElement(min_dist);
 				Path.addElement(min_node);  //nh1到s的最短路径和连接节点。
 				Prime.addElement(-1);  
@@ -250,13 +196,11 @@ public class Graph {
 				while(basei != Base.get(basei))
 				{
 					basei = Base.get(basei);
-					
 				}
 				Base.addElement(basei); //记录nh1的原节点					
 
 				if(path.size()>0)
 				{ ni = path.peek(); path.pop(); }
-
 			}
 			/*  Get node ni, it must meet it's the first node following nh in path, but its prime node ni` is NOT in graph */
 			else
@@ -277,8 +221,6 @@ public class Graph {
 					// add the arc -- (ni-1`,ni`)
 				}
 						
-
-
 				/* compute the minimal distance from node 0 to ni1 */
 				double min_dist = POSITIVE_INFINITY;
 				int min_node = -1;
@@ -301,20 +243,18 @@ public class Graph {
 				int basei = ni;
 				while(basei != Base.get(basei))
 				{
-					basei = Base.get(basei);
-					
+					basei = Base.get(basei);		
 				}
 				Base.addElement(basei);
-				
 
 				if( path.size()==0 ) break;
 				ni = path.peek(); path.pop();			
 			}
-//			System.out.println(array);
-//			System.out.println("Dist = "+Dist);
-//			System.out.println("Path = "+Path);
-//			System.out.println("Prime = "+Prime);
-//			System.out.println("Base = "+Base);
+			System.out.println("Dist = "+Dist);
+			System.out.println("Path = "+Path);
+			System.out.println("Prime = "+Prime);
+			System.out.println("Base = "+Base);
+			
 			/* get the kth shortest path */			
 			if( ni==0 ) ni = nh; // if nh is just the end node.
 			Stack<Integer> temp = new Stack<Integer>();
@@ -327,10 +267,11 @@ public class Graph {
 			}
 			if(temp.size()<2) break;  //路径只有一个节点，break
 			kpaths.addElement(temp);  // store the kth shortest path
-			System.out.println("kpaths="+kpaths);
 			ki++;;
 		}	
-		
+		for(int t=0;t<kpaths.size();t++){
+			kpaths.elementAt(t).addElement(start);
+		}
 		return ki;
 	}
 	private int AddNode(int ni,int preni){
@@ -348,6 +289,45 @@ public class Graph {
 		array.addElement(newRow); //加一行 -1
 		return g_size++;
 		
+	}
+	
+	public void calcuQoS(double[][] bw,double[][] arriveRate, double[][] delay){
+		for(int i=0;i<kpaths.size();i++){
+			double B=POSITIVE_INFINITY,A=1,D=0;	
+			int temp1 = (Integer) kpaths.get(i).peek();kpaths.get(i).pop();
+			Vector arraytemp = new Vector();arraytemp.addElement(temp1);
+			while(kpaths.get(i).size()>0){
+				int temp2 = (Integer) kpaths.get(i).peek();kpaths.get(i).pop();
+				B = Math.min(B , bw[temp1][temp2]);
+				A = A * arriveRate[temp1][temp2];
+				D = D + delay[temp1][temp2];
+				temp1 = temp2;
+				arraytemp.addElement(temp2);
+			}
+			Vector temp3 = new Vector();
+			temp3.addElement(B);
+			temp3.addElement(A);
+			temp3.addElement(D);
+			constraint.add(temp3);
+			array_path.add(arraytemp);
+		}
+	}
+	
+	public Vector SelectPath(double[] qos){
+		for(int i=0 ;i<array_path.size();i++){
+			if(qos.length==1)
+				if(constraint.get(i).get(0)>=qos[0]){
+					return array_path.get(i);}
+			if(qos.length==2)
+					if(constraint.get(i).get(0)>=qos[0] && constraint.get(i).get(1)>=qos[1]){
+							return array_path.get(i);}
+			
+			if(qos.length==3){
+				if(constraint.get(i).get(0)>=qos[0] && constraint.get(i).get(1)>=qos[1] && constraint.get(i).get(2)<=qos[2]){
+					return array_path.get(i);}
+				}		
+		}
+		return null;
 	}
 
 }
