@@ -153,11 +153,12 @@ public class Graph {
 			while( path.size()>0 )  //path 向量不为空时，循环前记录的是第ki条最短路径1389
 			{
 				int node = path.peek(); path.pop();
+				int nextnode = path.peek();
 //				System.out.println("path = "+path);
 				int count = 0;
 				for( int i=0; i<g_size; i++ )
 				{
-					if( array.get(i).get(node) >= 0 ) count++;
+					if( array.get(i).get(node) >= 0 && i != nextnode) count++;
 					if( count > 1 ) 
 					{
 						break;
@@ -172,7 +173,14 @@ public class Graph {
 			/* Add the first prime node to graph */
 			if( Prime.get(nh) < 0 ) 
 			{
-				int nh1 = AddNode(nh,Path.get(nh)); //nh1=size++  of _array,估计是扩展节点，列编号
+				int nh1;
+				if(path.size()>0){
+					nh1 = AddNode(nh,Path.get(nh),path.peek());
+				}
+				else{
+					nh1 = AddNode(nh,Path.get(nh));
+				}
+				 //nh1=size++  of _array,估计是扩展节点，列编号
 				
 				/* compute the minimal distance from node 0 to nh1 */
 				double min_dist = POSITIVE_INFINITY;
@@ -214,7 +222,14 @@ public class Graph {
 			/* Add the other prime nodes to graph */
 			while(ni > 0)
 			{
-				int ni1 = AddNode(ni,Path.get(ni));
+				// dele the arc -- (ni`,ni+1,)
+				int ni1;
+				if(path.size()>0){
+					ni1 = AddNode(ni,Path.get(ni),path.peek());
+				}
+				else{
+					ni1 = AddNode(ni,Path.get(ni));
+				}
 				if(Prime.get(Path.get(ni))>=0)		
 				{
 					array.get(Prime.get(Path.get(ni))).setElementAt(array.get(Path.get(ni)).get(ni), ni1);	
@@ -274,7 +289,24 @@ public class Graph {
 		}
 		return ki;
 	}
+	private int AddNode(int ni,int preni, int nextni){
+		
+		Vector newRow = new Vector<Object>();
+		for(int i=0;i<g_size;i++)
+		{
+			if(i != preni && i != nextni)    //如果i不等于nh节点最短路径的前一个点
+				array.get(i).addElement(array.get(i).get(ni)); //在第i行后，加入i--》nh的权值
+			else
+				array.get(i).addElement(-1.0);
+
+			newRow.addElement(-1.0);
+		}
+		newRow.addElement(-1.0);
+		array.addElement(newRow); //加一行 -1
+		return g_size++;		
+	}
 	private int AddNode(int ni,int preni){
+		
 		Vector newRow = new Vector<Object>();
 		for(int i=0;i<g_size;i++)
 		{
@@ -287,10 +319,8 @@ public class Graph {
 		}
 		newRow.addElement(-1.0);
 		array.addElement(newRow); //加一行 -1
-		return g_size++;
-		
+		return g_size++;		
 	}
-	
 	public void calcuQoS(double[][] bw,double[][] arriveRate, double[][] delay){
 		for(int i=0;i<kpaths.size();i++){
 			double B=POSITIVE_INFINITY,A=1,D=0;	

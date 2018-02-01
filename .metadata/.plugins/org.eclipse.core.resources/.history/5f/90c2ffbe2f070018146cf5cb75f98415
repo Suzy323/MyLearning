@@ -1,0 +1,172 @@
+import java.util.Stack;
+import java.util.Vector;
+
+
+public class Duplex {
+	private int g_N,g_size;
+	public Vector<Vector<Double>> array=new Vector<Vector<Double>>();
+	public Vector<Vector<Double>> constraint = new Vector<Vector<Double>>();
+	public Vector<Vector> array_path=new Vector<Vector>();
+	public Vector<Stack> kpaths = new Vector<Stack>();
+	public int start;
+	public int end;
+	public static final double POSITIVE_INFINITY = 1.0 / 0.0;
+	
+	public double dijkstra(int[] paths,double[] dist, int start, int end){
+		int[] used = new int [g_N];
+		int i;
+		for(i=0;i<g_N;i++)
+		{
+			paths[i]=-1 ;	
+			used[i] = 0;
+			dist[i] = (array.get(start).get(i)< 0.0) ? POSITIVE_INFINITY : array.get(start).get(i); 
+		}	
+
+		used[start] = 1;		           // label the start node
+		
+		int count = 0;	
+		while(count++ < g_N)
+		{		
+			int min_node = -1;
+			double min_dist = POSITIVE_INFINITY;
+
+			/* Select */
+			for(i=0;i<g_N;i++)
+			{
+				if(used[i] > 0){continue;}   // ignore the used node
+				
+				if(dist[i] < min_dist)
+				{
+					min_dist = dist[i];
+					min_node = i;
+				}
+			}
+			if(min_dist == POSITIVE_INFINITY){break;}
+
+			/* Record shortest path from the current node to start node */
+			if(min_node >= 0)
+			{			
+				used[min_node]  = 1;
+				dist[min_node]  = min_dist;			
+			}
+			if(min_node >= (int)g_N-1){break;}
+
+			/* Adjust */
+			for(i=0;i<g_N;i++)
+			{
+				if( used[i] > 0){continue;}  // ignore the used node
+
+				double w = array.get(min_node).get(i) < 0.0 ? POSITIVE_INFINITY : array.get(min_node).get(i);
+				if( min_dist + w < dist[i] )
+				{
+					dist[i] = min_dist + w;
+					paths[i]= min_node;
+				}
+			}       
+		}	
+		double mdist = dist[g_N-1];
+		if( end != start && end < g_N)
+			{mdist = dist[end];}	
+		return mdist == POSITIVE_INFINITY ? -1 : mdist;
+	}
+	
+	public Vector<Vector<Double>> GraphInitial (double[][] a){
+		Vector<Vector<Double>> array=new Vector<Vector<Double>>() ;
+		for(int i=0;i<a.length;i++){
+			  Vector vec=new Vector();
+			  for(int j=0;j<a.length;j++){
+					  vec.addElement(a[i][j]);
+			  }
+			  array.addElement(vec);
+			}
+		g_N=a.length;
+		g_size=a.length;
+		return array;
+	}
+	
+	@SuppressWarnings("rawtypes")
+	int MSAforKSP(int k,Vector<Stack> kpaths,int start,int end)
+	{
+		/* Initialize */	
+		int[] Path_tempt = new int[g_size];
+		double[] Dist_tempt = new double[g_size];
+		Vector<Integer> Path =new Vector<Integer>();
+		Vector<Integer> Base =new Vector<Integer>();
+		Vector<Integer> Prime = new Vector<Integer>();
+		Vector<Double> Dist =new Vector<Double>(); 
+
+		/* Find the shortest path firstly */	
+		if( dijkstra(Path_tempt,Dist_tempt, start, end) < 0 ) return 0;
+		Stack<Integer> path = new Stack<Integer>();      //可记录一条路径
+		Stack<Integer> path2 = new Stack<Integer>();
+		for(int i=0;i<g_size;i++)
+		{ 
+			Prime.addElement(-1); 
+			Base.addElement(i); 
+			Path.addElement(Path_tempt[i]);
+			Dist.addElement(Dist_tempt[i]);
+		} 
+		int j = end;	
+		while(j>=0)
+		{		
+			path.push(j); path2.push(j);j=Path_tempt[j];	//push -- stack 
+		}
+		kpaths.addElement(path2); // store the shortest path  push_back vector
+		
+		/* Find the 2th - kth shortest paths */
+		int ki = 1;
+		while( ki < k )
+		{
+			System.out.println("---------------roll = "+ki);
+			/* Find the first node with more than a single incoming arc */
+			int nh = 0;
+			int preNode = start;
+			while( path.size()>0 )  //path 向量不为空时，循环前记录的是第ki条最短路径1389
+			{
+				int node = path.peek(); 
+				int nextnode = path.peek();
+//				System.out.println("path = "+path);
+				int count = 0;
+				for( int i=0; i<g_size; i++ )
+				{
+					if( array.get(i).get(node) >= 0 && i != nextnode) count++;
+					if( i != preNode) 
+					{
+						adjoinNode = i;
+						
+					}	if( count > 1 ){break;}
+				}
+				if( count > 1 ) { nh = node;break; } //nh：可扩展节点
+				prenode=path.peek();path.pop();
+			}
+
+			if( nh==0 ){break; }// there is NOT an alternative path, exit!
+
+			int ni = 0;
+			
+			System.out.println("Dist = "+Dist);
+			System.out.println("Path = "+Path);
+			System.out.println("Prime = "+Prime);
+			System.out.println("Base = "+Base);
+			
+			/* get the kth shortest path */			
+			if( ni==0 ) ni = nh; // if nh is just the end node.
+			Stack<Integer> temp = new Stack<Integer>();
+			j = Prime.get(ni);
+			while(j>=0)
+			{		
+				path.push(j); 
+				temp.push(Base.get(j)); 
+				j=Path.get(j);
+			}
+			if(temp.size()<2) break;  //路径只有一个节点，break
+			kpaths.addElement(temp);  // store the kth shortest path
+			ki++;;
+		}	
+		for(int t=0;t<kpaths.size();t++){
+			kpaths.elementAt(t).addElement(start);
+		}
+		return ki;
+	}
+
+}

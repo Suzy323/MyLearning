@@ -4,13 +4,13 @@ import java.util.Vector;
 public class Main {
 	public static void main(String[] args) {
 		final double[][] weigh = { 
-				{ -1, 0, -1, -1, -1, -1, -1 },
-				{ -1, -1, 0, -1, 5, -1, -1 },
-				{ -1, 0 , -1, 0, -1, 1, -1 },
-				{ -1, -1, -1, -1, -1, -1, 0 },
-				{ -1, -1, 4, -1, -1, 3, -1 },
-				{ -1, -1, -1, 0, -1, -1, -1 },
-				{ -1, -1, -1, -1, -1, -1, -1 } };
+				{ -1,  0, -1, -1, -1, -1, -1 },
+				{  0, -1,  0, -1,  5, -1, -1 },
+				{ -1,  0, -1,  0,  4,  1, -1 },
+				{ -1, -1,  0, -1, -1, -1, 0 },
+				{ -1,  5,  4, -1, -1,  3, -1 },
+				{ -1, -1, -1,  0,  3, -1, -1 },
+				{ -1, -1, -1,  0, -1, -1, -1 } };
 		final double [][] bw = { 
 				{ 1, 2, 3, 4, 5, 6, 7},
 				{ 1, 2, 3, 4, 5, 6, 7},
@@ -40,7 +40,7 @@ public class Main {
 		G.start = 0;
 		G.end = 6;
 		double[] in = {1.0, 0.0, 5.0};
-		int a = G.MSAforKSP(5, G.kpaths, G.start, G.end);
+		int a = G.MSAforKSP(10, G.kpaths, G.start, G.end);
 		System.out.println("kpaths = "+ G.kpaths);
 		
 		

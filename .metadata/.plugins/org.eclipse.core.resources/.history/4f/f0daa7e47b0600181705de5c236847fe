@@ -1,0 +1,86 @@
+import java.util.Stack;
+import java.util.Vector;
+
+
+public class Duplex {
+	private int g_N,g_size;
+	public Vector<Vector<Double>> array=new Vector<Vector<Double>>();
+	public Vector<Vector<Double>> constraint = new Vector<Vector<Double>>();
+	public Vector<Vector> array_path=new Vector<Vector>();
+	public Vector<Stack> kpaths = new Vector<Stack>();
+	public int start;
+	public int end;
+	public static final double POSITIVE_INFINITY = 1.0 / 0.0;
+	
+	public double dijkstra(int[] paths,double[] dist, int start, int end){
+		int[] used = new int [g_N];
+		int i;
+		for(i=0;i<g_N;i++)
+		{
+			paths[i]=-1 ;	
+			used[i] = 0;
+			dist[i] = (array.get(start).get(i)< 0.0) ? POSITIVE_INFINITY : array.get(start).get(i); 
+		}	
+
+		used[start] = 1;		           // label the start node
+		
+		int count = 0;	
+		while(count++ < g_N)
+		{		
+			int min_node = -1;
+			double min_dist = POSITIVE_INFINITY;
+
+			/* Select */
+			for(i=0;i<g_N;i++)
+			{
+				if(used[i] > 0){continue;}   // ignore the used node
+				
+				if(dist[i] < min_dist)
+				{
+					min_dist = dist[i];
+					min_node = i;
+				}
+			}
+			if(min_dist == POSITIVE_INFINITY){break;}
+
+			/* Record shortest path from the current node to start node */
+			if(min_node >= 0)
+			{			
+				used[min_node]  = 1;
+				dist[min_node]  = min_dist;			
+			}
+			if(min_node >= (int)g_N-1){break;}
+
+			/* Adjust */
+			for(i=0;i<g_N;i++)
+			{
+				if( used[i] > 0){continue;}  // ignore the used node
+
+				double w = array.get(min_node).get(i) < 0.0 ? POSITIVE_INFINITY : array.get(min_node).get(i);
+				if( min_dist + w < dist[i] )
+				{
+					dist[i] = min_dist + w;
+					paths[i]= min_node;
+				}
+			}       
+		}	
+		double mdist = dist[g_N-1];
+		if( end != start && end < g_N)
+			{mdist = dist[end];}	
+		return mdist == POSITIVE_INFINITY ? -1 : mdist;
+	}
+	
+	public Vector<Vector<Double>> GraphInitial (double[][] a){
+		Vector<Vector<Double>> array=new Vector<Vector<Double>>() ;
+		for(int i=0;i<a.length;i++){
+			  Vector vec=new Vector();
+			  for(int j=0;j<a.length;j++){
+					  vec.addElement(a[i][j]);
+			  }
+			  array.addElement(vec);
+			}
+		g_N=a.length;
+		g_size=a.length;
+		return array;
+	}
+}
