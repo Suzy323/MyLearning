@@ -44,9 +44,9 @@ public class Main {
 		System.out.println("kpaths = "+ G.kpaths);
 		
 		
-		G.calcuQoS(bw, arriveRate, delay);
-		Vector path = G.SelectPath(in);
-		System.out.println("constraint = "+ G.constraint);
-		System.out.println(" QoS path = "+path);
+//		G.calcuQoS(bw, arriveRate, delay);
+//		Vector path = G.SelectPath(in);
+//		System.out.println("constraint = "+ G.constraint);
+//		System.out.println(" QoS path = "+path);
 	}
 }
